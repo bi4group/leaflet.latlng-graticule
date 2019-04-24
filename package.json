@@ -2,5 +2,5 @@
     "name": "leaflet.latlng-graticule",
     "version": "0.0.0",
     "description": "Leaflet Graticule.",
-    "main": "./src/leaflet.latlng-graticule.js"
+    "main": "leaflet.latlng-graticule.js"
   }
