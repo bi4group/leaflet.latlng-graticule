@@ -32,16 +32,17 @@ L.latlngGraticule({
 - **font**: Font Style for the tick label. Default `12px Verdana`
 - **fontColor**: Color of the tick label. Default `#aaa`
 - **dashArray**: Used to achieve dashed lines. Default `[0,0]`
-- **zoomInterval**: Use different intervals in different zoom levels. You can set for both latitude and longitude lines as the example, or set different intervals for latitude and longitude like below:
+- **zoomInterval**: Use different intervals in different zoom levels. You can set for both latitude and longitude lines as the example, or set different intervals for latitude and longitude like below. Also, multiple grids can be used at the same time:
 ```javascript
   zoomInterval: {
     latitude: [
       {start: 4, end: 6, interval: 5},
-      {start: 7, end: 20, interval: 1}
+      {start: 7, end: 20, interval: 1},
     ],
     longitude: [
-      {start: 4, end: 6, interval: 10},
-      {start: 7, end: 20, interval: 2}
+      {start: 4, end: 6, interval: 10, offset: 3},
+      {start: 7, end: 20, interval: 2},
+      {start: 7, end: 20, interval: 3},
     ]
   }
 ```
@@ -55,6 +56,11 @@ L.latlngGraticule({
     {start: 8, end: 20, interval: 1}
   ]
 ```
+- ***`zoomInterval` options***:
+  - **start**: Lower limit of the zoom level (included).
+  - **end**: Upper limit of the zoom level (included).
+  - **interval**: Degrees of separation between the lines. It has to be positive.
+  - **offset** (optional, default: 0): Degrees of displacement of the lines. It has to be positive.
 
 #### Special Options
 Some of the projections (like Lambert) is no straight line, set those options to draw a polyline graticule.
