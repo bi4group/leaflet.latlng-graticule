@@ -225,44 +225,36 @@
         __calcInterval: function() {
             var zoom = this._map.getZoom();
             if (this._currZoom != zoom) {
-                this._currLngInterval = 0;
-                this._currLatInterval = 0;
+                this._currLngIntervals = null;
+                this._currLatIntervals = null;
                 this._currZoom = zoom;
             }
 
             var interv;
 
-            if (!this._currLngInterval) {
+            if (this._currLngIntervals === undefined || this._currLngIntervals === null) {
                 try {
-                    for (var idx in this.options.lngInterval) {
-                        var dict = this.options.lngInterval[idx];
-                        if (dict.start <= zoom) {
-                            if (dict.end && dict.end >= zoom) {
-                                this._currLngInterval = dict.interval;
-                                break;
-                            }
-                        }
-                    }
+                    this._currLngIntervals = this.options.lngInterval.filter(function(dict) {
+                        return dict.start <= zoom && dict.end && dict.end >= zoom;
+                    }).map(function(dict) {
+                        return dict.interval;
+                    });
                 }
                 catch(e) {
-                    this._currLngInterval = 0;
+                    this._currLngIntervals = [];
                 }
             }
 
-            if (!this._currLatInterval) {
+            if (this._currLatIntervals === undefined || this._currLatIntervals === null) {
                 try {
-                    for (var idx in this.options.latInterval) {
-                        var dict = this.options.latInterval[idx];
-                        if (dict.start <= zoom) {
-                            if (dict.end && dict.end >= zoom) {
-                                this._currLatInterval = dict.interval;
-                                break;
-                            }
-                        }
-                    }
+                    this._currLatIntervals = this.options.latInterval.filter(function(dict) {
+                        return dict.start <= zoom && dict.end && dict.end >= zoom;
+                    }).map(function(dict) {
+                        return dict.interval;
+                    });
                 }
                 catch(e) {
-                    this._currLatInterval = 0;
+                    this._currLatIntervals = [];
                 }
             }
         },
@@ -288,12 +280,14 @@
                 curvedLat = this.options.latLineCurved;
 
             if (L.Browser.canvas && map) {
-                if (!this._currLngInterval || !this._currLatInterval) {
+                if (
+                    this._currLngIntervals === undefined
+                    || this._currLngIntervals === null
+                    || this._currLatIntervals === undefined
+                    || this._currLatIntervals === null
+                ) {
                     this.__calcInterval();
                 }
-
-                var latInterval = this._currLatInterval,
-                    lngInterval = this._currLngInterval;
 
                 var ctx = canvas.getContext('2d');
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -428,18 +422,20 @@
                     }
                 };
 
-                if (latInterval > 0) {
-                    for (var i=latInterval; i<=_lat_t; i+=latInterval) {
-                        if (i >= _lat_b) {
-                            __draw_lat_line(this, i);
+                this._currLatIntervals.forEach(function(latInterval) {
+                    if (latInterval > 0) {
+                        for (var i=latInterval; i<=_lat_t; i+=latInterval) {
+                            if (i >= _lat_b) {
+                                __draw_lat_line(this, i);
+                            }
+                        }
+                        for (var i=0; i>=_lat_b; i-=latInterval) {
+                            if (i <= _lat_t) {
+                                __draw_lat_line(this, i);
+                            }
                         }
                     }
-                    for (var i=0; i>=_lat_b; i-=latInterval) {
-                        if (i <= _lat_t) {
-                            __draw_lat_line(this, i);
-                        }
-                    }
-                }
+                }.bind(this));
 
                 function __draw_lon_line(self, lon_tick) {
                     lngstr = self.__format_lng(lon_tick);
@@ -498,18 +494,20 @@
                     }
                 };
 
-                if (lngInterval > 0) {
-                    for (var i=lngInterval; i<=_lon_r; i+=lngInterval) {
-                        if (i >= _lon_l) {
-                            __draw_lon_line(this, i);
+                this._currLngIntervals.forEach(function(lngInterval) {
+                    if (lngInterval > 0) {
+                        for (var i=lngInterval; i<=_lon_r; i+=lngInterval) {
+                            if (i >= _lon_l) {
+                                __draw_lon_line(this, i);
+                            }
+                        }
+                        for (var i=0; i>=_lon_l; i-=lngInterval) {
+                            if (i <= _lon_r) {
+                                __draw_lon_line(this, i);
+                            }
                         }
                     }
-                    for (var i=0; i>=_lon_l; i-=lngInterval) {
-                        if (i <= _lon_r) {
-                            __draw_lon_line(this, i);
-                        }
-                    }
-                }
+                }.bind(this));
             }
         },
 
