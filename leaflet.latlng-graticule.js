@@ -237,7 +237,7 @@
                     this._currLngIntervals = this.options.lngInterval.filter(function(dict) {
                         return dict.start <= zoom && dict.end && dict.end >= zoom;
                     }).map(function(dict) {
-                        return dict.interval;
+                        return {interval: dict.interval, offset: dict.offset || 0};
                     });
                 }
                 catch(e) {
@@ -250,7 +250,7 @@
                     this._currLatIntervals = this.options.latInterval.filter(function(dict) {
                         return dict.start <= zoom && dict.end && dict.end >= zoom;
                     }).map(function(dict) {
-                        return dict.interval;
+                        return {interval: dict.interval, offset: dict.offset || 0};
                     });
                 }
                 catch(e) {
@@ -423,13 +423,15 @@
                 };
 
                 this._currLatIntervals.forEach(function(latInterval) {
-                    if (latInterval > 0) {
-                        for (var i=latInterval; i<=_lat_t; i+=latInterval) {
+                    var interval = latInterval.interval;
+                    var offset = latInterval.offset;
+                    if (interval > 0 && offset >= 0) {
+                        for (var i=interval + offset; i<=_lat_t; i+=interval) {
                             if (i >= _lat_b) {
                                 __draw_lat_line(this, i);
                             }
                         }
-                        for (var i=0; i>=_lat_b; i-=latInterval) {
+                        for (var i=offset; i>=_lat_b; i-=interval) {
                             if (i <= _lat_t) {
                                 __draw_lat_line(this, i);
                             }
@@ -495,13 +497,15 @@
                 };
 
                 this._currLngIntervals.forEach(function(lngInterval) {
-                    if (lngInterval > 0) {
-                        for (var i=lngInterval; i<=_lon_r; i+=lngInterval) {
+                    var interval = lngInterval.interval;
+                    var offset = lngInterval.offset;
+                    if (interval > 0 && offset >= 0) {
+                        for (var i=interval + offset; i<=_lon_r; i+=interval) {
                             if (i >= _lon_l) {
                                 __draw_lon_line(this, i);
                             }
                         }
-                        for (var i=0; i>=_lon_l; i-=lngInterval) {
+                        for (var i=offset; i>=_lon_l; i-=interval) {
                             if (i <= _lon_r) {
                                 __draw_lon_line(this, i);
                             }
